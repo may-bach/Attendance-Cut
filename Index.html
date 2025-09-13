@@ -6,19 +6,15 @@
   <title>Attendance Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Initial state of the container for animation */
     .initial-container-state {
       opacity: 0;
       transform: scale(0.5);
       transition: all 1.5s ease-out;
     }
-    /* Final state of the container for animation */
     .final-container-state {
       opacity: 1;
       transform: scale(1);
     }
-
-    /* Results box animation */
     .results-container {
       opacity: 0;
       transform: translateY(20px) scale(0.95);
@@ -28,48 +24,89 @@
       opacity: 1;
       transform: translateY(0) scale(1);
     }
-
-    /* Animation for results */
     .result-animation {
       animation: fadeInSlideUp 0.8s ease-out forwards;
       opacity: 0;
     }
     @keyframes fadeInSlideUp {
-      0% {
-        opacity: 0;
-        transform: translateY(15px) scale(0.95);
-      }
-      60% {
-        opacity: 0.8;
-        transform: translateY(-2px) scale(1.02);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
+      0% { opacity: 0; transform: translateY(15px) scale(0.95); }
+      60% { opacity: 0.8; transform: translateY(-2px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    /* Simple button hover animation */
-    #calcBtn {
-      transition: all 0.2s ease-in-out;
-    }
+    #calcBtn { transition: all 0.2s ease-in-out; }
     #calcBtn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                  0 2px 4px -2px rgb(0 0 0 / 0.1);
     }
-
-    /* Ensure smooth loading */
     body {
       opacity: 0;
       animation: bodyFadeIn 0.3s ease-out 0.1s forwards;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
-    @keyframes bodyFadeIn {
-      to {
-        opacity: 1;
-      }
+    @keyframes bodyFadeIn { to { opacity: 1; } }
+
+    /* Dark Mode Styles */
+    body.dark {
+      color: #ffffff;
+    }
+    .dark .bg-white {
+      background-color: #2a2a2a !important;
+      color: #ffffff !important;
+    }
+    .dark input {
+      background-color: #333333 !important;
+      color: #ffffff !important;
+      border-color: #444444 !important;
+    }
+    .dark input:focus {
+      border-color: #555555 !important;
+      outline: none !important;
+    }
+    .dark #calcBtn {
+      background-color: #333333 !important;
+    }
+    .dark #calcBtn:hover {
+      background-color: #444444 !important;
+    }
+
+    /* Dark Mode Toggle */
+    .dark-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f7fafc;
+      color: #2d3748;
+      border: 2px solid #e2e8f0;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      font-size: 20px;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dark-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+    }
+    .dark .dark-toggle {
+      background: #2a2a2a;
+      color: #ffffff;
+      border-color: #444444;
     }
   </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <!-- Dark Mode Toggle -->
+  <button class="dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+    ◐
+  </button>
+
   <div class="flex flex-col items-center">
     <div id="calculator-container" class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 initial-container-state">
       <h1 class="text-2xl font-bold mb-4 text-center">Attendance Calculator</h1>
@@ -102,15 +139,47 @@
 
   <script>
     let liveUpdate = false;
+    let darkMode = localStorage.getItem('darkMode') === 'true';
 
-    // Trigger the initial fade-in animation on page load
+    // Apply dark mode on page load
     window.addEventListener('load', function() {
+      // Apply saved dark mode preference
+      if (darkMode) {
+        document.body.classList.add('dark');
+        document.querySelector('.dark-toggle').textContent = '◑';
+        // Force dark gray background for dark mode
+        document.body.style.backgroundColor = '#1a1a1a';
+      } else {
+        // Ensure light mode has proper background
+        document.body.style.backgroundColor = '';
+      }
+
+      // Trigger initial fade-in animation
       setTimeout(() => {
         const container = document.getElementById('calculator-container');
         container.classList.remove('initial-container-state');
         container.classList.add('final-container-state');
       }, 100);
     });
+
+    // Toggle dark mode function
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      document.body.classList.toggle('dark');
+      const toggleBtn = document.querySelector('.dark-toggle');
+      
+      if (darkMode) {
+        toggleBtn.textContent = '◑';
+        localStorage.setItem('darkMode', 'true');
+        // Force dark gray background for dark mode
+        document.body.style.backgroundColor = '#1a1a1a';
+      } else {
+        toggleBtn.textContent = '◐';
+        localStorage.setItem('darkMode', 'false');
+        // Remove inline style to let Tailwind handle light mode
+        document.body.style.backgroundColor = '';
+      }
+    }
 
     function calculate() {
       const taken = parseInt(document.getElementById("taken").value) || 0;
@@ -123,98 +192,62 @@
       const cutResult = document.getElementById("cutResult");
       const resultsContainer = document.getElementById("results-container");
 
-      // Show results container
       resultsContainer.style.display = 'block';
-      
-      // Reset animation for new calculation
       result.classList.remove('result-animation');
       cutResult.classList.remove('result-animation');
       resultsContainer.classList.remove('show');
-      
-      // Force reflow to ensure classes are removed
-      void result.offsetHeight;
-      void cutResult.offsetHeight;
-      void resultsContainer.offsetHeight;
+      void result.offsetHeight; void cutResult.offsetHeight; void resultsContainer.offsetHeight;
 
-      // Animate results container
-      setTimeout(() => {
-        resultsContainer.classList.add('show');
-      }, 10);
-      
+      setTimeout(() => { resultsContainer.classList.add('show'); }, 10);
+
       // Validation
       if (taken < 0 || attended < 0 || required < 0 || perWeek < 0 || weeksLeft < 0) {
         result.innerHTML = "Values cannot be negative.";
         cutResult.innerHTML = "";
-        setTimeout(() => {
-          result.classList.add('result-animation');
-        }, 10);
+        setTimeout(() => { result.classList.add('result-animation'); }, 10);
         return;
       }
-      
       if (attended > taken) {
         result.innerHTML = "Classes attended cannot exceed classes taken.";
         cutResult.innerHTML = "";
-        setTimeout(() => {
-          result.classList.add('result-animation');
-        }, 10);
+        setTimeout(() => { result.classList.add('result-animation'); }, 10);
         return;
       }
-      
       if (required > 100) {
         result.innerHTML = "Required % cannot exceed 100.";
         cutResult.innerHTML = "";
-        setTimeout(() => {
-          result.classList.add('result-animation');
-        }, 10);
+        setTimeout(() => { result.classList.add('result-animation'); }, 10);
         return;
       }
 
-      // Handle 0 required %
-      if (required === 0) {
-        result.innerHTML = 'Your attendance is <span class="font-bold">100%</span>.';
-        cutResult.innerHTML = '<span class="text-green-700 underline font-bold">You can skip unlimited classes.</span>';
-        
-        setTimeout(() => {
-          result.classList.add('result-animation');
-        }, 10);
-        setTimeout(() => {
-          cutResult.classList.add('result-animation');
-        }, 150);
-        return;
-      }
-
-      // Calculate percentage
+      // Attendance %
       let percentage = taken === 0 ? 0 : (attended / taken) * 100;
       let displayPercent = (percentage % 1 === 0) ? percentage.toFixed(0) : percentage.toFixed(2);
 
-      // Apply red if below requirement
       let percentHTML = percentage < required 
-        ? '<span class="text-red-600 font-bold">' + displayPercent + '%</span>' 
+        ? '<span class="text-red-600 font-bold">' + displayPercent + '%</span>'
         : '<span class="font-bold">' + displayPercent + '%</span>';
-
-      // New calculation for future skips
-      const totalFutureClasses = perWeek * weeksLeft;
-      const totalClassesNeeded = Math.ceil((100 * attended / required) - taken);
-      const possibleFutureSkips = Math.max(0, totalFutureClasses - totalClassesNeeded);
 
       result.innerHTML = 'Your attendance is ' + percentHTML + '.';
 
-      if (possibleFutureSkips > 0) {
-        const plural = possibleFutureSkips === 1 ? "class" : "classes";
-        cutResult.innerHTML = 'You can skip <span class="text-green-700 underline font-bold">' + possibleFutureSkips + '</span> ' + plural + ' in the upcoming weeks.';
+      // Future calculation
+      const totalFutureClasses = perWeek * weeksLeft;
+      let maxSkippable = Math.floor(
+        (attended + totalFutureClasses) - ((required / 100) * (taken + totalFutureClasses))
+      );
+      if (maxSkippable < 0) maxSkippable = 0;
+
+      if (maxSkippable > 0) {
+        const plural = maxSkippable === 1 ? "class" : "classes";
+        cutResult.innerHTML = 'You can skip <span class="text-green-700 underline font-bold">' 
+          + maxSkippable + '</span> ' + plural + ' in the upcoming weeks.';
       } else {
         cutResult.innerHTML = 'You can skip <span class="text-red-600 underline font-bold">0</span> classes in the upcoming weeks.';
       }
 
-      // Apply animation with staggered timing
-      setTimeout(() => {
-        result.classList.add('result-animation');
-      }, 10);
-      setTimeout(() => {
-        cutResult.classList.add('result-animation');
-      }, 150);
+      setTimeout(() => { result.classList.add('result-animation'); }, 10);
+      setTimeout(() => { cutResult.classList.add('result-animation'); }, 150);
 
-      // Enable live update after first calculation
       if (!liveUpdate) {
         liveUpdate = true;
         ["taken", "attended", "required", "perWeek", "weeksLeft"].forEach(id => {
