@@ -31,7 +31,7 @@ Click **Calculate** to see:
 
 ## 🎨 Demo
 
-**Live Demo**: [https://may-bach.github.io/Attendance-Cut](https://may-bach.github.io/Attendance-Cut)
+**Live Demo**: [https://lighthearted-pothos-74bb5d.netlify.app/](https://lighthearted-pothos-74bb5d.netlify.app/)
 
 ## 🛠️ Technologies Used
 
