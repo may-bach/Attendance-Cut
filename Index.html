@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Initial state of the container for animation */
+    .initial-container-state {
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 1.5s ease-out;
+    }
+    /* Final state of the container for animation */
+    .final-container-state {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Results box animation */
+    .results-container {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.6s ease-out;
+    }
+    .results-container.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Animation for results */
+    .result-animation {
+      animation: fadeInSlideUp 0.8s ease-out forwards;
+      opacity: 0;
+    }
+    @keyframes fadeInSlideUp {
+      0% {
+        opacity: 0;
+        transform: translateY(15px) scale(0.95);
+      }
+      60% {
+        opacity: 0.8;
+        transform: translateY(-2px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    /* Simple button hover animation */
+    #calcBtn {
+      transition: all 0.2s ease-in-out;
+    }
+    #calcBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    /* Ensure smooth loading */
+    body {
+      opacity: 0;
+      animation: bodyFadeIn 0.3s ease-out 0.1s forwards;
+    }
+    @keyframes bodyFadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="flex flex-col items-center">
+    <div id="calculator-container" class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4 initial-container-state">
+      <h1 class="text-2xl font-bold mb-4 text-center">Attendance Calculator</h1>
+      
+      <label class="block mb-2">Classes Taken</label>
+      <input type="number" id="taken" class="w-full p-2 border rounded mb-4" min="0">
+
+      <label class="block mb-2">Classes Attended</label>
+      <input type="number" id="attended" class="w-full p-2 border rounded mb-4" min="0">
+
+      <label class="block mb-2">Minimum Required %</label>
+      <input type="number" id="required" class="w-full p-2 border rounded mb-4" min="0" max="100">
+
+      <label class="block mb-2">Classes per Week</label>
+      <input type="number" id="perWeek" class="w-full p-2 border rounded mb-4" min="0">
+
+      <label class="block mb-2">Weeks Remaining</label>
+      <input type="number" id="weeksLeft" class="w-full p-2 border rounded mb-4" min="0">
+
+      <button id="calcBtn" onclick="calculate()" class="w-full bg-blue-500 text-white p-2 rounded">Calculate</button>
+    </div>
+
+    <!-- Results Container -->
+    <div id="results-container" class="bg-white p-6 rounded-lg shadow-lg w-full mx-4 mt-4 results-container" style="display: none; max-width: 2000px;">
+      <h2 class="text-lg font-semibold mb-3 text-center text-gray-700">Results</h2>
+      <p id="result" class="font-medium text-center"></p>
+      <p id="cutResult" class="mt-2 text-center"></p>
+    </div>
+  </div>
+
+  <script>
+    let liveUpdate = false;
+
+    // Trigger the initial fade-in animation on page load
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        const container = document.getElementById('calculator-container');
+        container.classList.remove('initial-container-state');
+        container.classList.add('final-container-state');
+      }, 100);
+    });
+
+    function calculate() {
+      const taken = parseInt(document.getElementById("taken").value) || 0;
+      const attended = parseInt(document.getElementById("attended").value) || 0;
+      const required = parseInt(document.getElementById("required").value) || 0;
+      const perWeek = parseInt(document.getElementById("perWeek").value) || 0;
+      const weeksLeft = parseInt(document.getElementById("weeksLeft").value) || 0;
+
+      const result = document.getElementById("result");
+      const cutResult = document.getElementById("cutResult");
+      const resultsContainer = document.getElementById("results-container");
+
+      // Show results container
+      resultsContainer.style.display = 'block';
+      
+      // Reset animation for new calculation
+      result.classList.remove('result-animation');
+      cutResult.classList.remove('result-animation');
+      resultsContainer.classList.remove('show');
+      
+      // Force reflow to ensure classes are removed
+      void result.offsetHeight;
+      void cutResult.offsetHeight;
+      void resultsContainer.offsetHeight;
+
+      // Animate results container
+      setTimeout(() => {
+        resultsContainer.classList.add('show');
+      }, 10);
+      
+      // Validation
+      if (taken < 0 || attended < 0 || required < 0 || perWeek < 0 || weeksLeft < 0) {
+        result.innerHTML = "Values cannot be negative.";
+        cutResult.innerHTML = "";
+        setTimeout(() => {
+          result.classList.add('result-animation');
+        }, 10);
+        return;
+      }
+      
+      if (attended > taken) {
+        result.innerHTML = "Classes attended cannot exceed classes taken.";
+        cutResult.innerHTML = "";
+        setTimeout(() => {
+          result.classList.add('result-animation');
+        }, 10);
+        return;
+      }
+      
+      if (required > 100) {
+        result.innerHTML = "Required % cannot exceed 100.";
+        cutResult.innerHTML = "";
+        setTimeout(() => {
+          result.classList.add('result-animation');
+        }, 10);
+        return;
+      }
+
+      // Handle 0 required %
+      if (required === 0) {
+        result.innerHTML = 'Your attendance is <span class="font-bold">100%</span>.';
+        cutResult.innerHTML = '<span class="text-green-700 underline font-bold">You can skip unlimited classes.</span>';
+        
+        setTimeout(() => {
+          result.classList.add('result-animation');
+        }, 10);
+        setTimeout(() => {
+          cutResult.classList.add('result-animation');
+        }, 150);
+        return;
+      }
+
+      // Calculate percentage
+      let percentage = taken === 0 ? 0 : (attended / taken) * 100;
+      let displayPercent = (percentage % 1 === 0) ? percentage.toFixed(0) : percentage.toFixed(2);
+
+      // Apply red if below requirement
+      let percentHTML = percentage < required 
+        ? '<span class="text-red-600 font-bold">' + displayPercent + '%</span>' 
+        : '<span class="font-bold">' + displayPercent + '%</span>';
+
+      // New calculation for future skips
+      const totalFutureClasses = perWeek * weeksLeft;
+      const totalClassesNeeded = Math.ceil((100 * attended / required) - taken);
+      const possibleFutureSkips = Math.max(0, totalFutureClasses - totalClassesNeeded);
+
+      result.innerHTML = 'Your attendance is ' + percentHTML + '.';
+
+      if (possibleFutureSkips > 0) {
+        const plural = possibleFutureSkips === 1 ? "class" : "classes";
+        cutResult.innerHTML = 'You can skip <span class="text-green-700 underline font-bold">' + possibleFutureSkips + '</span> ' + plural + ' in the upcoming weeks.';
+      } else {
+        cutResult.innerHTML = 'You can skip <span class="text-red-600 underline font-bold">0</span> classes in the upcoming weeks.';
+      }
+
+      // Apply animation with staggered timing
+      setTimeout(() => {
+        result.classList.add('result-animation');
+      }, 10);
+      setTimeout(() => {
+        cutResult.classList.add('result-animation');
+      }, 150);
+
+      // Enable live update after first calculation
+      if (!liveUpdate) {
+        liveUpdate = true;
+        ["taken", "attended", "required", "perWeek", "weeksLeft"].forEach(id => {
+          document.getElementById(id).addEventListener("input", calculate);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
