@@ -5,7 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attendance Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      font-family: 'Nexa', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
     .initial-container-state {
       opacity: 0;
       transform: scale(0.5);
@@ -51,23 +55,28 @@
       color: #ffffff;
     }
     .dark .bg-white {
-      background-color: #2a2a2a !important;
+      background-color: #1a1a1a !important;
       color: #ffffff !important;
     }
     .dark input {
-      background-color: #333333 !important;
+      background-color: #2d2d2d !important;
       color: #ffffff !important;
-      border-color: #444444 !important;
+      border-color: #404040 !important;
     }
     .dark input:focus {
-      border-color: #555555 !important;
+      border-color: #505050 !important;
       outline: none !important;
     }
     .dark #calcBtn {
-      background-color: #333333 !important;
+      background-color: #1e40af !important;
     }
     .dark #calcBtn:hover {
-      background-color: #444444 !important;
+      background-color: #1d4ed8 !important;
+    }
+
+    /* Dark Mode Results Text */
+    .dark #results-container h2 {
+      color: #ffffff !important;
     }
 
     /* Dark Mode Toggle */
@@ -95,9 +104,9 @@
       box-shadow: 0 8px 12px rgba(0,0,0,0.2);
     }
     .dark .dark-toggle {
-      background: #2a2a2a;
+      background: #1a1a1a;
       color: #ffffff;
-      border-color: #444444;
+      border-color: #404040;
     }
   </style>
 </head>
@@ -141,14 +150,17 @@
     let liveUpdate = false;
     let darkMode = localStorage.getItem('darkMode') === 'true';
 
+    // Apply dark mode immediately to prevent flash
+    if (darkMode) {
+      document.body.classList.add('dark');
+      document.body.style.backgroundColor = '#1e1e1e';
+    }
+
     // Apply dark mode on page load
     window.addEventListener('load', function() {
       // Apply saved dark mode preference
       if (darkMode) {
-        document.body.classList.add('dark');
         document.querySelector('.dark-toggle').textContent = '◑';
-        // Force dark gray background for dark mode
-        document.body.style.backgroundColor = '#1a1a1a';
       } else {
         // Ensure light mode has proper background
         document.body.style.backgroundColor = '';
@@ -172,7 +184,7 @@
         toggleBtn.textContent = '◑';
         localStorage.setItem('darkMode', 'true');
         // Force dark gray background for dark mode
-        document.body.style.backgroundColor = '#1a1a1a';
+        document.body.style.backgroundColor = '#1e1e1e';
       } else {
         toggleBtn.textContent = '◐';
         localStorage.setItem('darkMode', 'false');
