@@ -31,7 +31,7 @@ Click **Calculate** to see:
 
 ## 🎨 Demo
 
-**Live Demo**: [https://lighthearted-pothos-74bb5d.netlify.app/](https://lighthearted-pothos-74bb5d.netlify.app/)
+**Live Demo**: [https://attendancecut.netlify.app/](https://attendancecut.netlify.app/)
 
 ## 🛠️ Technologies Used
 
