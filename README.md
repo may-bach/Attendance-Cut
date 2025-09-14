@@ -42,7 +42,7 @@ Click **Calculate** to see:
 
 ## 📱 Screenshots
 
-<img width="2559" height="1439" alt="image" src="https://github.com/user-attachments/assets/b318ca3b-ad1c-40f2-821c-c7f4f612a212" />
+<img width="2559" height="1439" alt="image" src="https://github.com/user-attachments/assets/f5c2d6b6-5ff3-46af-ae94-ad2ebfcfdf8d" />
 
 
 ## 📝 License
